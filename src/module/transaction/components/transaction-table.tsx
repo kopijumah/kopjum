@@ -44,10 +44,14 @@ import {
   PaginationPrevious,
 } from '~/shared/ui/pagination';
 import { useTransactionTable } from '../hook/use-transaction-table';
+import { useAuth } from '~/module/auth/hook/use-auth';
 import type { getTransactions } from '../action';
 import { TransactionStatus } from '../enum';
 import type { DateRange } from 'react-day-picker';
 import TransactionCreate from './transaction-create';
+import TransactionUpdate from './transaction-update';
+import { useToggleTransactionStatus } from '../hook/use-transaction-mutation';
+import { Role } from '~/shared/enum';
 
 type Transaction = Awaited<ReturnType<typeof getTransactions>>[number];
 
@@ -113,87 +117,9 @@ const renderStatus = (value: unknown) => {
   );
 };
 
-const columns: ColumnDef<Transaction>[] = [
-  {
-    accessorKey: 'customer',
-    header: 'Customer',
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue('customer')}</div>
-    ),
-  },
-  {
-    accessorKey: 'method',
-    header: 'Method',
-    cell: ({ row }) => (
-      <div className="uppercase text-muted-foreground">
-        {row.getValue('method')}
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ row }) => renderStatus(row.getValue('status')),
-  },
-  {
-    accessorKey: 'total',
-    header: () => 'Total',
-    cell: ({ row }) => (
-      <div className="font-bold">
-        {formatCurrency(row.getValue('total'))}
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'updatedAt',
-    header: 'Updated',
-    cell: ({ row }) => (
-      <div className="text-muted-foreground">
-        {formatDateTime(row.getValue('updatedAt'))}
-      </div>
-    ),
-  },
-  {
-    id: 'actions',
-    header: '',
-    cell: ({ row }) => {
-      const transaction = row.original;
-      const isOpen = transaction.status === TransactionStatus.OpenBill;
-
-      return (
-        <div className="flex">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-xs" aria-label="Open menu">
-                <HugeiconsIcon icon={MoreHorizontalCircle01Icon} strokeWidth={2} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(transaction.id)}
-              >
-                Copy ID
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => console.log('update', transaction.id)}>
-                Update
-              </DropdownMenuItem>
-              {isOpen ? (
-                <DropdownMenuItem onClick={() => console.log('close', transaction.id)}>
-                  Close bill
-                </DropdownMenuItem>
-              ) : null}
-              <DropdownMenuItem onClick={() => console.log('print', transaction.id)}>
-                Print
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
-  },
-];
-
 const TransactionTable = () => {
+  const { user } = useAuth();
+  const toggleTransactionStatus = useToggleTransactionStatus();
   const {
     transactions,
     total,
@@ -213,6 +139,114 @@ const TransactionTable = () => {
     error,
   } = useTransactionTable();
   const [dateRange, setLocalDateRange] = React.useState<DateRange | undefined>();
+  const isAdmin = user?.role === Role.ADMIN;
+
+  const columns = React.useMemo<ColumnDef<Transaction>[]>(() => [
+    {
+      accessorKey: 'customer',
+      header: 'Customer',
+      cell: ({ row }) => (
+        <div className="font-medium">{row.getValue('customer')}</div>
+      ),
+    },
+    {
+      accessorKey: 'method',
+      header: 'Method',
+      cell: ({ row }) => (
+        <div className="uppercase text-muted-foreground">
+          {row.getValue('method')}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => renderStatus(row.getValue('status')),
+    },
+    {
+      accessorKey: 'total',
+      header: () => 'Total',
+      cell: ({ row }) => (
+        <div className="font-bold">
+          {formatCurrency(row.getValue('total'))}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'updatedAt',
+      header: 'Updated',
+      cell: ({ row }) => (
+        <div className="text-muted-foreground">
+          {formatDateTime(row.getValue('updatedAt'))}
+        </div>
+      ),
+    },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => {
+        const transaction = row.original;
+        const isOpen = transaction.status === TransactionStatus.OpenBill;
+        const canClose = isOpen && !toggleTransactionStatus.isPending;
+        const canReopen = !isOpen && isAdmin && !toggleTransactionStatus.isPending;
+
+        return (
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon-xs" aria-label="Open menu">
+                  <HugeiconsIcon icon={MoreHorizontalCircle01Icon} strokeWidth={2} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => navigator.clipboard.writeText(transaction.id)}
+                >
+                  Copy ID
+                </DropdownMenuItem>
+                <TransactionUpdate
+                  transactionId={transaction.id}
+                  trigger={
+                    <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                      Update
+                    </DropdownMenuItem>
+                  }
+                />
+                {isOpen ? (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      toggleTransactionStatus.mutate({
+                        id: transaction.id,
+                        currentStatus: transaction.status as TransactionStatus,
+                      })
+                    }
+                    disabled={!canClose}
+                  >
+                    Close bill
+                  </DropdownMenuItem>
+                ) : isAdmin ? (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      toggleTransactionStatus.mutate({
+                        id: transaction.id,
+                        currentStatus: transaction.status as TransactionStatus,
+                      })
+                    }
+                    disabled={!canReopen}
+                  >
+                    Open bill
+                  </DropdownMenuItem>
+                ) : null}
+                <DropdownMenuItem onClick={() => console.log('print', transaction.id)}>
+                  Print
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
+    },
+  ], [isAdmin, toggleTransactionStatus]);
 
   React.useEffect(() => {
     if (!from && !to) {

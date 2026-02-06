@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { DocumentAttachmentIcon, MoreHorizontalCircle01Icon } from '@hugeicons/core-free-icons';
+import { Coupon02Icon, DocumentAttachmentIcon, MoreHorizontalCircle01Icon } from '@hugeicons/core-free-icons';
 import { Button } from '~/shared/ui/button';
 import {
   DropdownMenu,
@@ -54,7 +54,7 @@ const VoucherCard = ({ voucher, isAdmin }: VoucherCardProps) => {
       <CardHeader className="gap-1">
         <CardTitle className="flex items-center gap-2">
           <span className="inline-flex size-8 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <HugeiconsIcon icon={DocumentAttachmentIcon} strokeWidth={2} className="size-4" />
+            <HugeiconsIcon icon={Coupon02Icon} strokeWidth={2} className="size-4" />
           </span>
           <span className="line-clamp-1">{voucher.name}</span>
         </CardTitle>

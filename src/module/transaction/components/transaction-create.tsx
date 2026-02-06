@@ -72,7 +72,7 @@ const TransactionCreate = () => {
   });
 
   const itemsQuery = useQuery({
-    queryKey: ['menu-items', 'active'],
+    queryKey: ['items', 'active'],
     queryFn: async () => getItems({ isActive: true }),
     enabled: open,
   });

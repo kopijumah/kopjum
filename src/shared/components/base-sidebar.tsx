@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   AnalyticsUpIcon,
+  Coupon02Icon,
   DocumentAttachmentIcon,
   Wallet03Icon,
 } from "@hugeicons/core-free-icons"
@@ -54,7 +55,7 @@ const menuItems: MenuItem[] = [
   {
     title: "Voucher",
     href: "/voucher",
-    icon: DocumentAttachmentIcon,
+    icon: Coupon02Icon,
     roles: [Role.ADMIN],
   },
 ]
