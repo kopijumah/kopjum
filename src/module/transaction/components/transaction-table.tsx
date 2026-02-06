@@ -65,7 +65,6 @@ const formatDateTime = (value: unknown) => {
   if (Number.isNaN(date.valueOf())) return '-';
   return new Intl.DateTimeFormat('en-US', {
     dateStyle: 'medium',
-    timeStyle: 'short',
   }).format(date);
 };
 
@@ -267,7 +266,7 @@ const TransactionTable = () => {
   }, [page, pageCount]);
 
   return (
-    <div className="w-full space-y-5">
+    <div className="flex h-full w-full flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold leading-none">Transactions</h2>
@@ -394,8 +393,8 @@ const TransactionTable = () => {
           <TransactionCreate />
         </div>
       </div>
-      <div className="overflow-hidden rounded-md border">
-        <Table className="text-sm">
+      <div className="min-h-0 flex-1 overflow-auto rounded-md border">
+        <Table className="min-w-full w-max text-sm">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

@@ -188,7 +188,7 @@ const TransactionCreate = () => {
               })}
             />
             {errors.customer ? (
-              <p className="text-destructive text-xs/relaxed">
+              <p className="text-destructive text-sm/relaxed">
                 {errors.customer.message}
               </p>
             ) : null}
@@ -287,7 +287,7 @@ const TransactionCreate = () => {
                         readOnly
                       />
                       <div className="flex-1">
-                        <p className="text-xs font-medium">
+                        <p className="text-sm font-medium">
                           {item?.name ?? 'Unknown item'}
                         </p>
                         <p className="text-muted-foreground text-[0.625rem]">
@@ -306,7 +306,7 @@ const TransactionCreate = () => {
                         </Button>
                         <span
                           className={cn(
-                            'inline-flex h-6 w-10 items-center justify-center rounded-md border px-1 text-xs',
+                            'inline-flex h-6 w-10 items-center justify-center rounded-md border px-1 text-sm',
                             {
                               'border-destructive': Boolean(
                                 errors.items?.[index]?.quantity,
@@ -340,22 +340,22 @@ const TransactionCreate = () => {
                 })}
               </div>
             ) : (
-              <p className="text-muted-foreground text-xs/relaxed">
+              <p className="text-muted-foreground text-sm/relaxed">
                 No items selected yet.
               </p>
             )}
             {errors.items?.message ? (
-              <p className="text-destructive text-xs/relaxed">
+              <p className="text-destructive text-sm/relaxed">
                 {errors.items.message}
               </p>
             ) : null}
           </div>
-          <div className="flex items-center justify-between rounded-md border bg-primary/10 px-3 py-2 text-xs">
+          <div className="flex items-center justify-between rounded-md border bg-primary/10 px-3 py-2 text-sm">
             <span className="text-muted-foreground">Total</span>
             <span className="font-medium">{formatCurrency(total)}</span>
           </div>
           {createTransaction.errorMessage ? (
-            <p className="text-destructive text-xs/relaxed">
+            <p className="text-destructive text-sm/relaxed">
               {createTransaction.errorMessage}
             </p>
           ) : null}

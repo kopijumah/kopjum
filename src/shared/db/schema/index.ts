@@ -44,6 +44,18 @@ export const itemsTable = pgTable(
   (t) => [index('idx_is_active').on(t.isActive)],
 );
 
+export const vouchersTable = pgTable(
+  'vouchers',
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    name: varchar('name', { length: 255 }).notNull(),
+    amount: numeric('amount', { precision: 10 }).notNull(),
+    isActive: boolean('is_active').default(true).notNull(),
+    ...metadata,
+  },
+  (t) => [index('idx_voucher_is_active').on(t.isActive)],
+);
+
 export const transactionsTable = pgTable(
   'transactions',
   {
@@ -52,6 +64,8 @@ export const transactionsTable = pgTable(
     total: numeric('price', { precision: 10 }).notNull(),
     status: varchar('status', { length: 50 }).notNull(),
     method: varchar('method', { length: 50 }).notNull(),
+    voucherId: uuid('voucher_id'),
+    discount: numeric('discount', { precision: 10 }).default('0').notNull(),
     ...metadata,
   },
   (t) => [
