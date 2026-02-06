@@ -51,6 +51,12 @@ const menuItems: MenuItem[] = [
     icon: DocumentAttachmentIcon,
     roles: [Role.ADMIN, Role.WAITERS],
   },
+  {
+    title: "Voucher",
+    href: "/voucher",
+    icon: DocumentAttachmentIcon,
+    roles: [Role.ADMIN],
+  },
 ]
 
 type BaseSidebarLayoutProps = {

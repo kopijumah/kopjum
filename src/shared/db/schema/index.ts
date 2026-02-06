@@ -49,7 +49,7 @@ export const vouchersTable = pgTable(
   {
     id: uuid().defaultRandom().primaryKey(),
     name: varchar('name', { length: 255 }).notNull(),
-    amount: numeric('amount', { precision: 10 }).notNull(),
+    percentage: numeric('percentage', { precision: 5, scale: 2 }).notNull(),
     isActive: boolean('is_active').default(true).notNull(),
     ...metadata,
   },
@@ -65,7 +65,6 @@ export const transactionsTable = pgTable(
     status: varchar('status', { length: 50 }).notNull(),
     method: varchar('method', { length: 50 }).notNull(),
     voucherId: uuid('voucher_id'),
-    discount: numeric('discount', { precision: 10 }).default('0').notNull(),
     ...metadata,
   },
   (t) => [

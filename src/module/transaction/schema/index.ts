@@ -9,6 +9,12 @@ export const transactionFormSchema = z.object({
   method: z.enum(PaymentMethod, {
     error: 'Tipe pembayaran wajib diisi',
   }),
+  voucherId: z
+    .string()
+    .trim()
+    .min(1)
+    .optional()
+    .or(z.literal('')),
   items: z.array(
     z.object({
       id: z
@@ -25,4 +31,3 @@ export const transactionFormSchema = z.object({
 });
 
 export type TransactionFormSchema = z.infer<typeof transactionFormSchema>
-

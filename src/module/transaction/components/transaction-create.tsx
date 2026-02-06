@@ -22,6 +22,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { useCreateTransaction } from '../hook/use-transaction-mutation';
 import { PaymentMethod } from '../enum';
 import { getItems } from '~/module/menu/action';
+import { getVouchers } from '~/module/voucher/action';
 import type { TransactionFormSchema } from '../schema';
 import { cn } from '~/shared/lib/utils';
 
@@ -44,6 +45,7 @@ const TransactionCreate = () => {
     () => ({
       customer: '',
       method: PaymentMethod.Qris,
+      voucherId: '',
       items: [],
     }),
     [],
@@ -75,14 +77,25 @@ const TransactionCreate = () => {
     enabled: open,
   });
 
+  const vouchersQuery = useQuery({
+    queryKey: ['vouchers', 'active'],
+    queryFn: async () => getVouchers({ isActive: true }),
+    enabled: open,
+  });
+
   const items = itemsQuery.data ?? [];
   const itemsById = React.useMemo(
     () => new Map(items.map((item) => [item.id, item])),
     [items],
   );
   const itemsWatch = useWatch({ control, name: 'items' }) ?? [];
+  const voucherIdWatch = useWatch({ control, name: 'voucherId' }) ?? '';
+  const vouchersById = React.useMemo(
+    () => new Map((vouchersQuery.data ?? []).map((voucher) => [voucher.id, voucher])),
+    [vouchersQuery.data],
+  );
 
-  const total = React.useMemo(
+  const subtotal = React.useMemo(
     () =>
       itemsWatch.reduce((sum, item) => {
         const price = itemsById.get(item.id)?.price ?? 0;
@@ -90,6 +103,12 @@ const TransactionCreate = () => {
       }, 0),
     [itemsById, itemsWatch],
   );
+  const discountPercentage = React.useMemo(() => {
+    if (!voucherIdWatch) return 0;
+    return Number(vouchersById.get(voucherIdWatch)?.percentage ?? 0);
+  }, [voucherIdWatch, vouchersById]);
+  const discountAmount = Math.max(0, (subtotal * discountPercentage) / 100);
+  const total = Math.max(0, subtotal - discountAmount);
 
   React.useEffect(() => {
     if (!open) {
@@ -211,6 +230,34 @@ const TransactionCreate = () => {
                     {Object.values(PaymentMethod).map((method) => (
                       <SelectItem key={method} value={method}>
                         {method}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <Label>Voucher</Label>
+            <Controller
+              control={control}
+              name="voucherId"
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? ''}
+                  onValueChange={(value) =>
+                    field.onChange(value === '__none__' ? '' : value)
+                  }
+                  disabled={createTransaction.isPending || vouchersQuery.isLoading}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select voucher (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">No voucher</SelectItem>
+                    {(vouchersQuery.data ?? []).map((voucher) => (
+                      <SelectItem key={voucher.id} value={voucher.id}>
+                        {voucher.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -350,9 +397,23 @@ const TransactionCreate = () => {
               </p>
             ) : null}
           </div>
-          <div className="flex items-center justify-between rounded-md border bg-primary/10 px-3 py-2 text-sm">
-            <span className="text-muted-foreground">Total</span>
-            <span className="font-medium">{formatCurrency(total)}</span>
+          <div className="grid gap-1 rounded-md border bg-primary/10 px-3 py-2 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="font-medium">{formatCurrency(subtotal)}</span>
+            </div>
+            {discountAmount !== 0 ? (
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Discount</span>
+                <span className="font-medium text-rose-500">
+                  -{formatCurrency(discountAmount)}
+                </span>
+              </div>
+            ) : null}
+            <div className="flex items-center justify-between border-t pt-2">
+              <span className="text-muted-foreground">Total</span>
+              <span className="font-medium">{formatCurrency(total)}</span>
+            </div>
           </div>
           {createTransaction.errorMessage ? (
             <p className="text-destructive text-sm/relaxed">
