@@ -4,7 +4,7 @@ import { db } from "~/shared/db";
 import { LoginSchema } from "../schema";
 import { eq } from "drizzle-orm";
 import { usersTable } from "~/shared/db/schema";
-import { createSession, verifySession } from "~/shared/session";
+import { createSession, deleteSession, verifySession } from "~/shared/session";
 import { Role } from "~/shared/enum";
 
 
@@ -41,4 +41,8 @@ export async function getCurrent() {
   }
 
   return record
+}
+
+export async function logout() {
+  await deleteSession();
 }

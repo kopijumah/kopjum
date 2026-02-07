@@ -50,6 +50,7 @@ import { TransactionStatus } from '../enum';
 import type { DateRange } from 'react-day-picker';
 import TransactionCreate from './transaction-create';
 import TransactionUpdate from './transaction-update';
+import TransactionReceipt from './transaction-receipt';
 import { useToggleTransactionStatus } from '../hook/use-transaction-mutation';
 import { Role } from '~/shared/enum';
 
@@ -237,9 +238,14 @@ const TransactionTable = () => {
                     Open bill
                   </DropdownMenuItem>
                 ) : null}
-                <DropdownMenuItem onClick={() => console.log('print', transaction.id)}>
-                  Print
-                </DropdownMenuItem>
+                <TransactionReceipt
+                  transactionId={transaction.id}
+                  trigger={
+                    <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                      Print
+                    </DropdownMenuItem>
+                  }
+                />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

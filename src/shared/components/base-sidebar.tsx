@@ -8,23 +8,31 @@ import {
   AnalyticsUpIcon,
   Coupon02Icon,
   DocumentAttachmentIcon,
+  Logout01Icon,
+  UserCircleIcon,
   Wallet03Icon,
 } from "@hugeicons/core-free-icons"
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarInset,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarSeparator,
 } from "~/shared/ui/sidebar"
 import { useAuth } from "~/module/auth/hook/use-auth"
 import { Role } from "~/shared/enum"
+import KopjumIcon from "~/shared/components/kopjum-icon"
+import { Button } from "~/shared/ui/button"
+import { logout } from "~/module/auth/action"
 
 type MenuItem = {
   title: string
@@ -67,10 +75,26 @@ type BaseSidebarLayoutProps = {
 function BaseSidebarLayout({ children }: BaseSidebarLayoutProps) {
   const pathname = usePathname()
   const auth = useAuth()
+  const [isLoggingOut, startLogout] = React.useTransition()
 
   return (
     <SidebarProvider>
       <Sidebar variant="sidebar">
+        <SidebarHeader>
+          <Link
+            href="/"
+            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-semibold text-sidebar-foreground"
+          >
+            <KopjumIcon className="size-8" />
+            <div className="flex flex-col justify-start items-start">
+              <div className="tracking-tight">Kopjum</div>
+              <div className="text-xs font-normal">
+                By <span className="font-bold">Teman Duta</span>
+              </div>
+            </div>
+          </Link>
+        </SidebarHeader>
+        <SidebarSeparator />
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel></SidebarGroupLabel>
@@ -106,6 +130,34 @@ function BaseSidebarLayout({ children }: BaseSidebarLayoutProps) {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
+        <SidebarSeparator />
+        <SidebarFooter>
+          <div className="flex flex-row items-center justify-between w-full">
+            <div className="flex items-center gap-3 rounded-md px-2 py-2 w-full">
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold text-sidebar-foreground">
+                  {auth.isLoading
+                    ? "Loading user..."
+                    : auth.user
+                      ? auth.user.username
+                      : "Unknown user"}
+                </div>
+                <div className="truncate text-xs text-muted-foreground">
+                  {auth.isLoading ? "Checking role..." : auth.user?.role ?? "No role"}
+                </div>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-fit justify-start gap-2 text-sm"
+              disabled={isLoggingOut}
+              onClick={() => startLogout(() => logout())}
+            >
+              <HugeiconsIcon icon={Logout01Icon} strokeWidth={2} className="size-4" />
+            </Button>
+          </div>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
