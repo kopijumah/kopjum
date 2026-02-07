@@ -43,10 +43,14 @@ const TransactionReceipt = ({
           size: 58mm 100mm;
           margin: 0;
         }
-      }
-      body {
+        body {
+          margin: 0;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
           -webkit-print-color-adjust: exact;
-      }  
+        }
+      }
     `,
   });
 
