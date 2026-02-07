@@ -9,7 +9,6 @@ import {
   Coupon02Icon,
   DocumentAttachmentIcon,
   Logout01Icon,
-  UserCircleIcon,
   Wallet03Icon,
 } from "@hugeicons/core-free-icons"
 
@@ -80,7 +79,7 @@ function BaseSidebarLayout({ children }: BaseSidebarLayoutProps) {
       <Sidebar variant="sidebar">
         <SidebarHeader>
           <Link
-            href="/"
+            href="/transaction"
             className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-semibold text-sidebar-foreground"
           >
             <KopjumIcon className="size-8" />
