@@ -20,12 +20,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~
 import { Popover, PopoverContent, PopoverTrigger } from '~/shared/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '~/shared/ui/command';
 import { useUpdateTransaction } from '../hook/use-transaction-mutation';
-import { PaymentMethod } from '../enum';
+import { PaymentMethod, TransactionStatus } from '../enum';
 import { getItems } from '~/module/menu/action';
 import { getVouchers } from '~/module/voucher/action';
 import { getTransactionById } from '../action';
 import type { TransactionFormSchema } from '../schema';
 import { cn } from '~/shared/lib/utils';
+import { useAuth } from '~/module/auth/hook/use-auth';
+import { Role } from '~/shared/enum';
 
 type TransactionFormValues = TransactionFormSchema;
 
@@ -46,6 +48,8 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
   const [open, setOpen] = React.useState(false);
   const [itemPickerOpen, setItemPickerOpen] = React.useState(false);
   const updateTransaction = useUpdateTransaction();
+  const { user } = useAuth();
+  const isAdmin = user?.role === Role.ADMIN;
 
   const defaultValues = React.useMemo<TransactionFormValues>(
     () => ({
@@ -121,6 +125,9 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
   }, [voucherIdWatch, vouchersById]);
   const discountAmount = Math.max(0, (subtotal * discountPercentage) / 100);
   const total = Math.max(0, subtotal - discountAmount);
+  const isClosed = transactionQuery.data?.transaction?.status === TransactionStatus.CloseBill;
+  const isLocked = Boolean(isClosed && !isAdmin);
+  const formDisabled = updateTransaction.isPending || isLocked;
 
   React.useEffect(() => {
     if (!open) {
@@ -201,6 +208,13 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
   );
 
   const onSubmit = (values: TransactionFormValues) => {
+    if (isLocked) {
+      setError('root', {
+        type: 'manual',
+        message: 'Only admin can update closed transactions.',
+      });
+      return;
+    }
     if (!values.items.length) {
       setError('items', { type: 'manual', message: 'Tambahkan item terlebih dahulu.' });
       return;
@@ -234,7 +248,7 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
               id="transaction-customer"
               placeholder="Customer name"
               aria-invalid={Boolean(errors.customer)}
-              disabled={updateTransaction.isPending}
+              disabled={formDisabled}
               {...register('customer', {
                 required: 'Pelanggan wajib diisi',
                 minLength: {
@@ -258,7 +272,7 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
                 <Select
                   value={field.value}
                   onValueChange={(value) => field.onChange(value as PaymentMethod)}
-                  disabled={updateTransaction.isPending}
+                  disabled={formDisabled}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select payment method" />
@@ -285,7 +299,7 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
                   onValueChange={(value) =>
                     field.onChange(value === '__none__' ? '' : value)
                   }
-                  disabled={updateTransaction.isPending || vouchersQuery.isLoading}
+                  disabled={formDisabled || vouchersQuery.isLoading}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select voucher (optional)" />
@@ -311,7 +325,7 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
                     type="button"
                     variant="outline"
                     size="lg"
-                    disabled={itemsQuery.isLoading || updateTransaction.isPending}
+                    disabled={itemsQuery.isLoading || formDisabled}
                   >
                     Add item
                   </Button>
@@ -383,7 +397,7 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
                           type="button"
                           variant="outline"
                           size="icon-xs"
-                          disabled={updateTransaction.isPending}
+                          disabled={formDisabled}
                           onClick={() => handleDecrease(index)}
                         >
                           -
@@ -404,7 +418,7 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
                           type="button"
                           variant="outline"
                           size="icon-xs"
-                          disabled={updateTransaction.isPending}
+                          disabled={formDisabled}
                           onClick={() => handleIncrease(index)}
                         >
                           +
@@ -414,7 +428,7 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
                         type="button"
                         variant="ghost"
                         size="sm"
-                        disabled={updateTransaction.isPending}
+                        disabled={formDisabled}
                         onClick={() => remove(index)}
                       >
                         Remove
@@ -457,17 +471,27 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
               {updateTransaction.errorMessage}
             </p>
           ) : null}
+          {errors.root?.message ? (
+            <p className="text-destructive text-sm/relaxed">
+              {errors.root.message}
+            </p>
+          ) : null}
+          {isLocked ? (
+            <p className="text-muted-foreground text-sm/relaxed">
+              This transaction is closed. Only admins can update it.
+            </p>
+          ) : null}
           <AlertDialogFooter className="sm:grid sm:grid-cols-2 sm:items-center">
             <AlertDialogCancel
               type="button"
-              disabled={updateTransaction.isPending}
+              disabled={formDisabled}
               className="w-full"
             >
               Cancel
             </AlertDialogCancel>
             <Button
               type="submit"
-              disabled={updateTransaction.isPending || transactionQuery.isLoading}
+              disabled={formDisabled || transactionQuery.isLoading}
               className="w-full"
             >
               {updateTransaction.isPending ? 'Updating...' : 'Update'}

@@ -1,4 +1,3 @@
-
 import { BaseSidebarLayout } from "~/shared/components/base-sidebar";
 
 export default function BaseLayout({

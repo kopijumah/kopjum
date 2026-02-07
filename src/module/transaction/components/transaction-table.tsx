@@ -188,6 +188,7 @@ const TransactionTable = () => {
       cell: ({ row }) => {
         const transaction = row.original;
         const isOpen = transaction.status === TransactionStatus.OpenBill;
+        const canUpdate = isOpen || isAdmin;
         const canClose = isOpen && !toggleTransactionStatus.isPending;
         const canReopen = !isOpen && isAdmin && !toggleTransactionStatus.isPending;
 
@@ -205,14 +206,18 @@ const TransactionTable = () => {
                 >
                   Copy ID
                 </DropdownMenuItem>
-                <TransactionUpdate
-                  transactionId={transaction.id}
-                  trigger={
-                    <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
-                      Update
-                    </DropdownMenuItem>
-                  }
-                />
+                {canUpdate ? (
+                  <TransactionUpdate
+                    transactionId={transaction.id}
+                    trigger={
+                      <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                        Update
+                      </DropdownMenuItem>
+                    }
+                  />
+                ) : (
+                  <DropdownMenuItem disabled>Update (admin only)</DropdownMenuItem>
+                )}
                 {isOpen ? (
                   <DropdownMenuItem
                     onClick={() =>

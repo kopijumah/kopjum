@@ -180,7 +180,7 @@ const TransactionCreate = () => {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button size="lg">Create transaction</Button>
+        <Button size="lg">Create</Button>
       </AlertDialogTrigger>
       <AlertDialogContent className='min-w-3xl'>
         <AlertDialogHeader>
