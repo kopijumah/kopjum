@@ -77,7 +77,7 @@ const TransactionReceipt = ({
             {items.map((e, i) => (
               <div key={i} className='w-full grid grid-cols-5 py-2'>
                 <div key={`0-${i}`} className='w-full col-span-1 text-center'>
-                  <p className='text-[0.75rem] font-normal text-start'>
+                  <p className='text-[0.75rem] font-normal'>
                     {e.detail?.quantity ?? 0}
                   </p>
                 </div>
