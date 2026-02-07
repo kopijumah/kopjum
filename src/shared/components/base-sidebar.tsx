@@ -32,7 +32,6 @@ import { useAuth } from "~/module/auth/hook/use-auth"
 import { Role } from "~/shared/enum"
 import KopjumIcon from "~/shared/components/kopjum-icon"
 import { Button } from "~/shared/ui/button"
-import { logout } from "~/module/auth/action"
 
 type MenuItem = {
   title: string
@@ -75,7 +74,6 @@ type BaseSidebarLayoutProps = {
 function BaseSidebarLayout({ children }: BaseSidebarLayoutProps) {
   const pathname = usePathname()
   const auth = useAuth()
-  const [isLoggingOut, startLogout] = React.useTransition()
 
   return (
     <SidebarProvider>
@@ -151,8 +149,8 @@ function BaseSidebarLayout({ children }: BaseSidebarLayoutProps) {
               type="button"
               variant="ghost"
               className="w-fit justify-start gap-2 text-sm"
-              disabled={isLoggingOut}
-              onClick={() => startLogout(() => logout())}
+              disabled={auth.logoutMutation.isPending}
+              onClick={() => auth.logoutMutation.mutate()}
             >
               <HugeiconsIcon icon={Logout01Icon} strokeWidth={2} className="size-4" />
             </Button>
