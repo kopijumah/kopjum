@@ -5,6 +5,7 @@ import { useReactToPrint } from 'react-to-print';
 import { Button } from '~/shared/ui/button';
 import KopjumIcon from '~/shared/components/kopjum-icon';
 import { formatCurrency } from '~/shared/lib/currency';
+import { Separator } from '~/shared/ui/separator';
 
 type TransactionReceiptItem = {
   detail?: { quantity?: number | null } | null;
@@ -26,7 +27,6 @@ type TransactionReceiptProps = {
 };
 
 const TransactionReceipt = ({
-  transactionId,
   customerName,
   items,
   receipt,
@@ -35,7 +35,6 @@ const TransactionReceipt = ({
 
   const handlePrint = useReactToPrint({
     contentRef: contentRef,
-    documentTitle: `nota-${transactionId}`,
     pageStyle: `
       @media print {
         @page {
@@ -50,82 +49,73 @@ const TransactionReceipt = ({
   });
 
   const { subtotal, discountAmount, grandTotal, hasDiscount } = receipt;
+  const computedGrandTotal = hasDiscount ? subtotal - discountAmount : subtotal;
+  const displayTotal = Number.isFinite(grandTotal)
+    ? grandTotal
+    : computedGrandTotal;
 
   return (
-    <div className="flex flex-col items-center h-full w-full max-w-3xl mx-auto justify-center overflow-hidden px-4 py-6 gap-y-4">
-      <div className="flex w-full justify-center overflow-auto rounded-lg border bg-muted/30 p-3">
+    <div className='relative h-[83dvh] w-full flex flex-col items-center justify-center bg-sidebar rounded-lg gap-y-5 p-3 text-neutral-900'>
+      <div className='max-w-xl max-h-full overflow-y-scroll space-y-3 bg-white'>
         <div
           ref={contentRef}
-          className="flex w-[58mm] flex-col items-center gap-3 bg-white p-3 text-[0.7rem] text-black"
+          className='w-[58mm] h-full bg-white flex flex-col items-center p-2 gap-y-1.5'
         >
-          <div className="w-full flex flex-col mt-2 items-center justify-center gap-y-1">
-            <div className="flex aspect-square size-10 overflow-clip items-center justify-center rounded-lg bg-sidebar-primary mt-4">
-              <KopjumIcon />
-            </div>
-            <div className="text-sm font-semibold">Kopjum</div>
-            <div className="text-[0.6rem] text-black">Nota transaksi</div>
+          <div className='flex aspect-square size-10 overflow-clip items-center justify-center rounded-lg bg-sidebar-primary mt-4'>
+            <KopjumIcon className='w-full h-full size-6' />
+          </div>
+          <p className='text-[0.45rem] font-normal text-center'>Kopi Jumah</p>
+          <div className="h-[0.1px] w-full bg-gray-500" />
+          <div className='w-full flex flex-col items-center py-2'>
+            <p className='text-[0.45rem] font-normal'>Pesanan atas nama</p>
+            <p className='text-[0.45rem] font-normal'>{customerName ?? '-'}</p>
           </div>
           <div className="h-[0.1px] w-full bg-gray-500" />
-          <div className="flex w-full flex-col items-center gap-1 text-center">
-            <div className="text-[0.6rem] text-black">
-              Pesanan atas nama
-            </div>
-            <div className="text-xs font-semibold">{customerName}</div>
-          </div>
-          <div className="h-[0.1px] w-full bg-gray-500" />
-          <div className="w-full text-[0.65rem]">
-            {items.map((entry, index) => (
-              <div key={`item-${index}`} className="grid grid-cols-7 py-1">
-                <div className="col-span-1 text-start">
-                  {entry.detail?.quantity ?? 0}
+          <div className='w-full flex flex-col py-2'>
+            {items.map((e, i) => (
+              <div key={i} className='w-full grid grid-cols-5 py-2'>
+                <div key={`0-${i}`} className='w-full col-span-1 text-center'>
+                  <p className='text-[0.45rem] font-normal'>
+                    {e.detail?.quantity ?? 0}
+                  </p>
                 </div>
-                <div className="col-span-3">
-                  {entry.item?.name ?? 'Item'}
+                <div key={`1-${i}`} className='w-full col-span-2'>
+                  <p className='text-[0.45rem] font-normal'>{e.item?.name ?? '-'}</p>
                 </div>
-                <div className="col-span-3 text-right">
-                  {formatCurrency(
-                    Number(entry.item?.price ?? 0) *
-                    Number(entry.detail?.quantity ?? 0),
-                  )}
+                <div key={`2-${i}`} className='w-full col-span-1'>
+                  <p className='text-[0.45rem] font-normal'>
+                    {formatCurrency(
+                      Number(e.item?.price ?? 0) * Number(e.detail?.quantity ?? 0),
+                    )}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
           <div className="h-[0.1px] w-full bg-gray-500" />
-          <div className="grid w-full grid-cols-5 text-[0.65rem]">
-            {hasDiscount && (
-              <>
-                <div className="col-span-2 text-start py-1 text-black">
-                  Subtotal
-                </div>
-                <div className="col-span-3 py-1 text-right font-medium">
-                  {formatCurrency(subtotal)}
-                </div>
-                <div className="col-span-2 text-start py-1 text-black">
-                  Diskon
-                </div>
-                <div className="col-span-3 py-1 text-right font-medium">
-                  -{formatCurrency(discountAmount)}
-                </div>
-              </>
-            )}
-            <div className="col-span-2 text-start py-1 text-[0.7rem] font-semibold">
-              Total
+          <div className='w-full grid grid-cols-5 py-2'>
+            <div className='w-full col-span-1 text-center'>
+              <p className='text-[0.45rem] font-normal'>Total</p>
             </div>
-            <div className="col-span-3 py-1 text-right text-[0.7rem] font-semibold">
-              {formatCurrency(grandTotal)}
+            <div className='w-full col-span-2'></div>
+            <div className='w-full col-span-1'>
+              <p className='text-[0.45rem] font-normal'>
+                {formatCurrency(displayTotal)}
+              </p>
             </div>
           </div>
-
           <div className="h-[0.1px] w-full bg-gray-500" />
-          <div className="text-center text-[0.6rem] text-black">
-            Terima kasih atas kunjungan Anda.
+          <div className='max-w-[80%] text-center'>
+            <p className='text-[0.45rem] font-normal'>
+              Terima kasih kerana berkunjung ke Kopi Jumah. Kami berharap anda
+              menikmati pengalaman kopi anda bersama kami.
+            </p>
           </div>
         </div>
       </div>
       <Button
-        onClick={handlePrint}
-        className='w-full'
+        className='w-full max-w-xl'
+        onClick={() => handlePrint()}
       >
         Print
       </Button>
