@@ -1,8 +1,6 @@
 const Environment = {
   DatabaseUrl: 'DATABASE_URL',
   SessionKey: 'SESSION_KEY',
-  WhitelistAdmin: 'WHITELIST_ADMIN',
-  WhitelistWaiter: 'WHITELIST_WAITER',
 } as const;
 
 type Environment = (typeof Environment)[keyof typeof Environment];

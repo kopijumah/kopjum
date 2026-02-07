@@ -6,9 +6,11 @@ import { eq } from "drizzle-orm";
 import { usersTable } from "~/shared/db/schema";
 import { createSession, deleteSession, verifySession } from "~/shared/session";
 import { Role } from "~/shared/enum";
+import { getEnvSingle } from "~/shared/env";
 
 
 export async function login(req: LoginSchema) {
+  console.log(getEnvSingle('DATABASE_URL'))
   const record = await db.query.usersTable.findFirst({
     where: eq(usersTable.username, req.username),
   });
