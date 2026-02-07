@@ -49,7 +49,7 @@ const TransactionTableBody = ({
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            Array.from({ length: 20 }).map((_, index) => (
+            Array.from({ length: 30 }).map((_, index) => (
               <TableRow key={`skeleton-${index}`}>
                 {columns.map((column, cellIndex) => (
                   <TableCell

@@ -1,5 +1,6 @@
-import { HugeiconsIcon } from '@hugeicons/react';
 import { MoreHorizontalCircle01Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
+import Link from 'next/link';
 import { Button } from '~/shared/ui/button';
 import {
   DropdownMenu,
@@ -8,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from '~/shared/ui/dropdown-menu';
 import TransactionUpdate from './transaction-update';
-import TransactionReceipt from './transaction-receipt';
 import { TransactionStatus } from '../enum';
 import { useToggleTransactionStatus } from '../hook/use-transaction-mutation';
 import type { getTransactions } from '../action';
@@ -82,14 +82,9 @@ const TransactionTableActions = ({
               Open bill
             </DropdownMenuItem>
           ) : null}
-          <TransactionReceipt
-            transactionId={transaction.id}
-            trigger={
-              <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
-                Print
-              </DropdownMenuItem>
-            }
-          />
+          <DropdownMenuItem asChild>
+            <Link href={`/transaction/${transaction.id}`}>Print</Link>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
