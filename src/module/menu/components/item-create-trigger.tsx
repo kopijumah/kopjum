@@ -17,14 +17,19 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '~/shared/ui/input-
 import { Label } from '~/shared/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/shared/ui/select';
 import { useCreateItem } from '../hook/use-item-mutation';
-import { ItemDrinkCategory, ItemFoodCategory, ItemType } from '../enum';
+import {
+  ItemCategory,
+  ItemDrinkCategory,
+  ItemFoodCategory,
+  ItemType,
+} from '../enum';
 import type { ItemFormSchema } from '../schema';
 
-const getCategoryOptions = (type: ItemFormSchema['type']) => {
+const getCategoryOptions = (type: ItemFormSchema['type']): ItemCategory[] => {
   if (type === ItemType.DRINK) {
-    return Object.values(ItemDrinkCategory);
+    return Object.values(ItemDrinkCategory) as ItemCategory[];
   }
-  return Object.values(ItemFoodCategory);
+  return Object.values(ItemFoodCategory) as ItemCategory[];
 };
 
 const ItemCreateTrigger = () => {

@@ -1,8 +1,11 @@
 import z from 'zod';
 import { ItemCategory, ItemType } from '../enum';
 
-const itemTypeValues = Object.values(ItemType) as [string, ...string[]];
-const itemCategoryValues = Object.values(ItemCategory) as [string, ...string[]];
+const itemTypeValues = Object.values(ItemType) as [ItemType, ...ItemType[]];
+const itemCategoryValues = Object.values(ItemCategory) as [
+  ItemCategory,
+  ...ItemCategory[],
+];
 
 export const itemFormSchema = z.object({
   name: z
