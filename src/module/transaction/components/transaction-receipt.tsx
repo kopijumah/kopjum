@@ -95,13 +95,13 @@ const TransactionReceipt = ({
                     <KopjumIcon />
                   </div>
                   <div className="text-sm font-semibold">Kopjum</div>
-                  <div className="text-[0.6rem] text-muted-foreground">
+                  <div className="text-[0.6rem] text-black">
                     Nota transaksi
                   </div>
                 </div>
                 <div className="h-[0.1px] w-full bg-gray-500" />
                 <div className="flex w-full flex-col items-center gap-1 text-center">
-                  <div className="text-[0.6rem] text-muted-foreground">
+                  <div className="text-[0.6rem] text-black">
                     Pesanan atas nama
                   </div>
                   <div className="text-xs font-semibold">{transaction.customer}</div>
@@ -130,15 +130,15 @@ const TransactionReceipt = ({
                 </div>
                 <div className="h-[0.1px] w-full bg-gray-500" />
                 <div className="grid w-full grid-cols-5 text-[0.65rem]">
-                  <div className="col-span-2 text-start py-1 text-muted-foreground">
-                    Subtotal
-                  </div>
-                  <div className="col-span-3 py-1 text-right font-medium">
-                    {formatCurrency(subtotal)}
-                  </div>
                   {hasDiscount && (
                     <>
-                      <div className="col-span-2 text-start py-1 text-muted-foreground">
+                      <div className="col-span-2 text-start py-1 text-black">
+                        Subtotal
+                      </div>
+                      <div className="col-span-3 py-1 text-right font-medium">
+                        {formatCurrency(subtotal)}
+                      </div>
+                      <div className="col-span-2 text-start py-1 text-black">
                         Diskon
                       </div>
                       <div className="col-span-3 py-1 text-right font-medium">
@@ -155,12 +155,12 @@ const TransactionReceipt = ({
                 </div>
 
                 <div className="h-[0.1px] w-full bg-gray-500" />
-                <div className="text-center text-[0.6rem] text-muted-foreground">
+                <div className="text-center text-[0.6rem] text-black">
                   Terima kasih atas kunjungan Anda.
                 </div>
               </div>
             ) : (
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-black">
                 Nota tidak ditemukan.
               </div>
             )}
