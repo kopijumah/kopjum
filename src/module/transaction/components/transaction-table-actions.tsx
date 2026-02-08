@@ -35,7 +35,7 @@ const TransactionTableActions = ({
     <div className="flex items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-xs" aria-label="Open menu">
+          <Button variant="ghost" size="icon-lg" aria-label="Open menu">
             <HugeiconsIcon icon={MoreHorizontalCircle01Icon} strokeWidth={2} />
           </Button>
         </DropdownMenuTrigger>
