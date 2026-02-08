@@ -93,7 +93,7 @@ const TransactionCreateItems = ({
         </Popover>
       </div>
       {fields.length ? (
-        <div className="grid max-h-64 gap-2 overflow-y-auto pr-1">
+        <div className="grid gap-2">
           {fields.map((field, index) => {
             const item = itemsById.get(field.id);
             const quantityValue =
