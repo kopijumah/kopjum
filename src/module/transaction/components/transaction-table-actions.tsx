@@ -39,7 +39,7 @@ const TransactionTableActions = ({
             <HugeiconsIcon icon={MoreHorizontalCircle01Icon} strokeWidth={2} />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className='space-y-2.5'>
           <DropdownMenuItem
             onClick={() => navigator.clipboard.writeText(transaction.id)}
           >
