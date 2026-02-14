@@ -158,10 +158,10 @@ function BaseSidebarLayout({ children }: BaseSidebarLayoutProps) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <div className="bg-background/95 backdrop-blur supports-backdrop-blur:bg-background/60 sticky top-0 z-20 flex h-16 items-center gap-2 border-b px-3">
+        <div className="bg-sidebar/90 backdrop-blur supports-backdrop-blur:bg-background/60 sticky top-0 z-20 flex h-16 items-center gap-2 border-b px-3">
           <SidebarTrigger className="shrink-0" />
         </div>
-        <div className="w-full flex flex-col max-w-6xl mx-auto mt-8 mb-6 px-5 md:px-0">
+        <div className="w-full flex flex-col max-w-6xl mx-auto mt-8 mb-6 px-5">
           {children}
         </div>
       </SidebarInset>

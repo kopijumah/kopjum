@@ -4,6 +4,7 @@ import { formatDateTime } from '~/shared/lib/time';
 import TransactionStatusBadge from './transaction-table-status-badge';
 import TransactionTableActions, { type Transaction } from './transaction-table-actions';
 import { useToggleTransactionStatus } from '../hook/use-transaction-mutation';
+import { Typography } from '~/shared/ui/text';
 
 const buildTransactionColumns = (props: {
   isAdmin: boolean;
@@ -13,16 +14,22 @@ const buildTransactionColumns = (props: {
     accessorKey: 'customer',
     header: 'Customer',
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue('customer')}</div>
+      <Typography asChild variant="p2" className="text-inherit font-medium">
+        <div>{row.getValue('customer')}</div>
+      </Typography>
     ),
   },
   {
     accessorKey: 'method',
     header: 'Method',
     cell: ({ row }) => (
-      <div className="uppercase text-muted-foreground">
-        {row.getValue('method')}
-      </div>
+      <Typography
+        asChild
+        variant="p2"
+        className="text-inherit uppercase text-muted-foreground"
+      >
+        <div>{row.getValue('method')}</div>
+      </Typography>
     ),
   },
   {
@@ -36,16 +43,22 @@ const buildTransactionColumns = (props: {
     accessorKey: 'total',
     header: () => 'Total',
     cell: ({ row }) => (
-      <div className="font-bold">{formatCurrency(row.getValue('total'))}</div>
+      <Typography asChild variant="p2" className="text-inherit font-bold">
+        <div>{formatCurrency(row.getValue('total'))}</div>
+      </Typography>
     ),
   },
   {
     accessorKey: 'updatedAt',
     header: 'Updated',
     cell: ({ row }) => (
-      <div className="text-muted-foreground">
-        {formatDateTime(row.getValue('updatedAt'))}
-      </div>
+      <Typography
+        asChild
+        variant="p2"
+        className="text-inherit text-muted-foreground"
+      >
+        <div>{formatDateTime(row.getValue('updatedAt'))}</div>
+      </Typography>
     ),
   },
   {

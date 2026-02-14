@@ -38,7 +38,7 @@ const VoucherModule = () => {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-col gap-3 bg-background/95 pb-4 pt-2 backdrop-blur sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-3 bg-background/95 backdrop-blur sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold">Vouchers</h1>
           <p className="text-muted-foreground text-xs/relaxed">

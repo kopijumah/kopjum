@@ -31,6 +31,7 @@ import type {
 } from '../type';
 import TransactionUpdateItems from './transaction-update-items';
 import TransactionUpdateSummary from './transaction-update-summary';
+import { Typography } from '~/shared/ui/text';
 
 type TransactionUpdateFormProps = {
   control: Control<TransactionFormValues>;
@@ -117,9 +118,13 @@ const TransactionUpdateForm = ({
           })}
         />
         {errors.customer ? (
-          <p className="text-destructive text-sm/relaxed">
-            {errors.customer.message}
-          </p>
+          <Typography
+            asChild
+            variant="p2"
+            className="text-inherit text-destructive text-sm/relaxed"
+          >
+            <p>{errors.customer.message}</p>
+          </Typography>
         ) : null}
       </div>
       <div className="grid gap-1.5">
@@ -197,17 +202,31 @@ const TransactionUpdateForm = ({
         total={total}
       />
       {errorMessage ? (
-        <p className="text-destructive text-sm/relaxed">{errorMessage}</p>
+        <Typography
+          asChild
+          variant="p2"
+          className="text-inherit text-destructive text-sm/relaxed"
+        >
+          <p>{errorMessage}</p>
+        </Typography>
       ) : null}
       {rootErrorMessage ? (
-        <p className="text-destructive text-sm/relaxed">
-          {rootErrorMessage}
-        </p>
+        <Typography
+          asChild
+          variant="p2"
+          className="text-inherit text-destructive text-sm/relaxed"
+        >
+          <p>{rootErrorMessage}</p>
+        </Typography>
       ) : null}
       {isLocked ? (
-        <p className="text-muted-foreground text-sm/relaxed">
-          This transaction is closed. Only admins can update it.
-        </p>
+        <Typography
+          asChild
+          variant="p2"
+          className="text-inherit text-muted-foreground text-sm/relaxed"
+        >
+          <p>This transaction is closed. Only admins can update it.</p>
+        </Typography>
       ) : null}
       <AlertDialogFooter className="sm:grid sm:grid-cols-2 sm:items-center">
         <AlertDialogCancel type="button" disabled={formDisabled} className="w-full">

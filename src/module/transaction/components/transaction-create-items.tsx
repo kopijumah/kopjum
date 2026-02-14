@@ -12,6 +12,7 @@ import {
 } from '~/shared/ui/command';
 import { cn } from '~/shared/lib/utils';
 import { formatCurrency } from '~/shared/lib/currency';
+import { Typography } from '~/shared/ui/text';
 import type {
   MenuItem,
   TransactionFormValues,
@@ -119,12 +120,20 @@ const TransactionCreateItems = ({
                   readOnly
                 />
                 <div className="flex-1">
-                  <p className="text-sm font-medium">
-                    {item?.name ?? 'Unknown item'}
-                  </p>
-                  <p className="text-muted-foreground text-[0.625rem]">
-                    {formatCurrency(item?.price ?? 0)}
-                  </p>
+                  <Typography
+                    asChild
+                    variant="p2"
+                    className="text-inherit text-sm font-medium"
+                  >
+                    <p>{item?.name ?? 'Unknown item'}</p>
+                  </Typography>
+                  <Typography
+                    asChild
+                    variant="p3"
+                    className="text-muted-foreground"
+                  >
+                    <p>{formatCurrency(item?.price ?? 0)}</p>
+                  </Typography>
                 </div>
                 <div className="flex items-center gap-1">
                   <Button
@@ -136,9 +145,11 @@ const TransactionCreateItems = ({
                   >
                     -
                   </Button>
-                  <span
+                  <Typography
+                    asChild
+                    variant="p2"
                     className={cn(
-                      'inline-flex h-6 w-10 items-center justify-center rounded-md border px-1 text-sm',
+                      'text-inherit inline-flex h-6 w-10 items-center justify-center rounded-md border px-1 text-sm',
                       {
                         'border-destructive': Boolean(
                           errors.items?.[index]?.quantity,
@@ -146,8 +157,8 @@ const TransactionCreateItems = ({
                       },
                     )}
                   >
-                    {quantityValue}
-                  </span>
+                    <span>{quantityValue}</span>
+                  </Typography>
                   <Button
                     type="button"
                     variant="outline"
@@ -172,14 +183,22 @@ const TransactionCreateItems = ({
           })}
         </div>
       ) : (
-        <p className="text-muted-foreground text-sm/relaxed">
-          No items selected yet.
-        </p>
+        <Typography
+          asChild
+          variant="p2"
+          className="text-inherit text-muted-foreground text-sm/relaxed"
+        >
+          <p>No items selected yet.</p>
+        </Typography>
       )}
       {errors.items?.message ? (
-        <p className="text-destructive text-sm/relaxed">
-          {errors.items.message}
-        </p>
+        <Typography
+          asChild
+          variant="p2"
+          className="text-inherit text-destructive text-sm/relaxed"
+        >
+          <p>{errors.items.message}</p>
+        </Typography>
       ) : null}
     </div>
   );

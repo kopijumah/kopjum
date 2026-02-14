@@ -15,6 +15,7 @@ import type { DateRange } from 'react-day-picker';
 import { TransactionStatus } from '../enum';
 import TransactionCreate from './transaction-create';
 import { endOfDay, formatDate, startOfDay } from '~/shared/lib/time';
+import { Typography } from '~/shared/ui/text';
 
 type TransactionTableFiltersProps = {
   status: TransactionStatus | null;
@@ -50,7 +51,9 @@ const TransactionTableFilters = ({
 
   return (
     <div className="flex flex-wrap items-center gap-3 text-sm">
-      <span className="text-muted-foreground">Status</span>
+      <Typography asChild variant="p2" className="text-inherit text-muted-foreground">
+        <span>Status</span>
+      </Typography>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -89,7 +92,9 @@ const TransactionTableFilters = ({
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-      <span className="text-muted-foreground">Date</span>
+      <Typography asChild variant="p2" className="text-muted-foreground">
+        <span>Date</span>
+      </Typography>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -127,7 +132,9 @@ const TransactionTableFilters = ({
           />
         </PopoverContent>
       </Popover>
-      <span className="text-muted-foreground">Rows per page</span>
+      <Typography asChild variant="p2" className='text-muted-foreground'>
+        <span>Rows per page</span>
+      </Typography>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button

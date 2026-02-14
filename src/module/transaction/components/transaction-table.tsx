@@ -11,6 +11,7 @@ import buildTransactionColumns from './transaction-table-columns';
 import TransactionTableFilters from './transaction-table-filters';
 import TransactionTableBody from './transaction-table-body';
 import TransactionTablePagination from './transaction-table-pagination';
+import { Typography } from '~/shared/ui/text';
 
 const TransactionTable = () => {
   const { user } = useAuth();
@@ -67,10 +68,12 @@ const TransactionTable = () => {
     <div className="flex h-full w-full flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold leading-none">Transactions</h2>
-          <p className="text-muted-foreground text-sm">
+          <Typography variant="h2" className="text-lg font-semibold leading-none">
+            Transactions
+          </Typography>
+          <Typography className="text-muted-foreground text-sm">
             {isFetching ? 'Updating data...' : 'Latest transactions overview'}
-          </p>
+          </Typography>
         </div>
         <TransactionTableFilters
           status={status}

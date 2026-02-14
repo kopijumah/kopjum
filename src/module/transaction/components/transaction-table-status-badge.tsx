@@ -4,6 +4,7 @@ import {
   InformationCircleIcon,
 } from '@hugeicons/core-free-icons';
 import { TransactionStatus } from '../enum';
+import { Typography } from '~/shared/ui/text';
 
 const statusConfig = {
   [TransactionStatus.OpenBill]: {
@@ -30,7 +31,11 @@ const TransactionStatusBadge = ({ status }: TransactionStatusBadgeProps) => {
       : null;
 
   if (!config) {
-    return <div className="capitalize">{value || '-'}</div>;
+    return (
+      <Typography asChild variant="p2" className="text-inherit capitalize">
+        <div>{value || '-'}</div>
+      </Typography>
+    );
   }
 
   return (

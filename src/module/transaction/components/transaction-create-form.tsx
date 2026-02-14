@@ -31,6 +31,7 @@ import type {
 import TransactionCreateItems from './transaction-create-items';
 import TransactionCreateSummary from './transaction-create-summary';
 import { AlertDialogCancel } from '~/shared/ui/alert-dialog';
+import { Typography } from '~/shared/ui/text';
 
 type TransactionCreateFormProps = {
   control: Control<TransactionFormValues>;
@@ -110,9 +111,13 @@ const TransactionCreateForm = ({
           })}
         />
         {errors.customer ? (
-          <p className="text-destructive text-sm/relaxed">
-            {errors.customer.message}
-          </p>
+          <Typography
+            asChild
+            variant="p2"
+            className="text-destructive text-sm/relaxed"
+          >
+            <p>{errors.customer.message}</p>
+          </Typography>
         ) : null}
       </div>
       <div className="grid gap-1.5">
@@ -190,7 +195,13 @@ const TransactionCreateForm = ({
         total={total}
       />
       {errorMessage ? (
-        <p className="text-destructive text-sm/relaxed">{errorMessage}</p>
+        <Typography
+          asChild
+          variant="p2"
+          className="text-inherit text-destructive text-sm/relaxed"
+        >
+          <p>{errorMessage}</p>
+        </Typography>
       ) : null}
       <AlertDialogFooter className="sm:grid sm:grid-cols-2 sm:items-center">
         <AlertDialogCancel

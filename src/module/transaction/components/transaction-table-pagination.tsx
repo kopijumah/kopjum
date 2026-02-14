@@ -8,6 +8,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '~/shared/ui/pagination';
+import { Typography } from '~/shared/ui/text';
 
 type TransactionTablePaginationProps = {
   page: number;
@@ -53,9 +54,15 @@ const TransactionTablePagination = ({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-      <div className="text-muted-foreground">
-        Showing {showingStart}-{showingEnd} of {total}
-      </div>
+      <Typography
+        asChild
+        variant="p2"
+        className="text-inherit text-muted-foreground"
+      >
+        <div>
+          Showing {showingStart}-{showingEnd} of {total}
+        </div>
+      </Typography>
       <div className="flex w-full flex-col items-start gap-3.5 sm:w-auto sm:items-end">
         <span className="text-muted-foreground">
           Page {page} of {pageCount}
