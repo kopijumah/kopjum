@@ -8,6 +8,7 @@ import { PAYMENT_METHODS, type PaymentMethod, TransactionStatus } from '~/module
 export type IncomeSummaryParams = {
   from?: number | null;
   to?: number | null;
+  status?: TransactionStatus | null;
 };
 
 export type DailyIncomeRow = {
@@ -32,7 +33,14 @@ const toNumber = (value: unknown) => {
 };
 
 export async function getIncomeSummary(params: IncomeSummaryParams): Promise<IncomeSummary> {
-  const conditions = [eq(transactionsTable.status, TransactionStatus.CloseBill)];
+  const conditions = [];
+
+  if (
+    params.status === TransactionStatus.OpenBill ||
+    params.status === TransactionStatus.CloseBill
+  ) {
+    conditions.push(eq(transactionsTable.status, params.status));
+  }
 
   if (typeof params.from === 'number') {
     conditions.push(gte(transactionsTable.updatedAt, new Date(params.from)));

@@ -1,7 +1,16 @@
 'use client';
 
 import * as React from 'react';
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { Button } from '~/shared/ui/button';
@@ -13,10 +22,22 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '~/shared/ui/chart';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '~/shared/ui/dropdown-menu';
 import { Popover, PopoverContent, PopoverTrigger } from '~/shared/ui/popover';
 import { Skeleton } from '~/shared/ui/skeleton';
 import type { DateRange } from 'react-day-picker';
-import { PAYMENT_METHOD_CONFIG, PAYMENT_METHODS, type PaymentMethod } from '~/module/transaction/enum';
+import {
+  PAYMENT_METHOD_CONFIG,
+  PAYMENT_METHODS,
+  TransactionStatus,
+  type PaymentMethod,
+} from '~/module/transaction/enum';
 import { useAnalyticSummary } from '../hook/use-analytic';
 
 const chartConfig = PAYMENT_METHOD_CONFIG.reduce((acc, method) => {
@@ -99,7 +120,9 @@ const AnalyticModule = () => {
     data,
     from,
     to,
+    status,
     setDateRange,
+    setStatus,
     isLoading,
     isFetching,
     isError,
@@ -122,59 +145,133 @@ const AnalyticModule = () => {
     return fromLabel === toLabel ? fromLabel : `${fromLabel} - ${toLabel}`;
   }, [fromDate, toDate]);
 
+  const statusFilter = status ?? 'ALL';
+  const statusOptions = [
+    { label: 'All statuses', value: 'ALL' },
+    { label: 'Open bill', value: TransactionStatus.OpenBill },
+    { label: 'Close bill', value: TransactionStatus.CloseBill },
+  ];
+  const statusLabel =
+    statusOptions.find((option) => option.value === statusFilter)?.label ??
+    'All statuses';
+
   const chartData = React.useMemo(
     () => buildDailySeries(from, to, data?.dailyByMethod ?? []),
     [from, to, data?.dailyByMethod],
   );
+  const paymentShareData = React.useMemo(() => {
+    const total = data?.total ?? 0;
+    return PAYMENT_METHOD_CONFIG.map((method) => {
+      const value = data?.byMethod?.[method.value] ?? 0;
+      const percentage = total > 0 ? (value / total) * 100 : 0;
+      return {
+        key: method.value,
+        label: method.label,
+        value,
+        percentage,
+        color: method.color,
+      };
+    });
+  }, [data?.byMethod, data?.total]);
+  const rangeDays = React.useMemo(() => {
+    if (!Number.isFinite(from) || !Number.isFinite(to)) return 0;
+    const start = startOfDay(new Date(from)).getTime();
+    const end = startOfDay(new Date(to)).getTime();
+    const diff = Math.abs(end - start);
+    return Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+  }, [from, to]);
+  const showDailyIncome = rangeDays > 1;
 
   return (
-    <div className="flex w-full flex-col gap-4 overflow-auto">
-      <div className="sticky top-0 z-10 flex flex-col gap-3 border-b bg-background/95 pb-4 pt-2 backdrop-blur sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex w-full flex-col gap-4">
+      <div className="flex flex-col gap-3 bg-background/95 pb-4 pt-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold">Analytics</h1>
           <p className="text-muted-foreground text-xs/relaxed">
             Track daily income and total money coming in.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-muted-foreground text-xs">Date range</span>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="lg"
-                className="min-fit gap-1 px-3 text-left font-normal"
-                data-empty={!dateRange?.from}
-              >
-                {dateLabel}
-                <HugeiconsIcon
-                  icon={ArrowDown01Icon}
-                  strokeWidth={2}
-                  className="size-3 text-muted-foreground"
-                  data-icon="inline-end"
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
+            <span className="text-muted-foreground text-xs">Status</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="min-fit w-full justify-between gap-2 px-3 sm:w-auto"
+                  id="analytics-status-filter"
+                >
+                  {statusLabel}
+                  <HugeiconsIcon
+                    icon={ArrowDown01Icon}
+                    strokeWidth={2}
+                    className="size-3 text-muted-foreground"
+                    data-icon="inline-end"
+                  />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuRadioGroup
+                  value={statusFilter}
+                  onValueChange={(value) => {
+                    const nextStatus =
+                      value === TransactionStatus.OpenBill ||
+                      value === TransactionStatus.CloseBill
+                        ? value
+                        : null;
+                    void setStatus(nextStatus);
+                  }}
+                >
+                  {statusOptions.map((option) => (
+                    <DropdownMenuRadioItem key={option.value} value={option.value}>
+                      {option.label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
+            <span className="text-muted-foreground text-xs">Date range</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="min-fit w-full justify-between gap-2 px-3 text-left font-normal sm:w-auto"
+                  data-empty={!dateRange?.from}
+                >
+                  {dateLabel}
+                  <HugeiconsIcon
+                    icon={ArrowDown01Icon}
+                    strokeWidth={2}
+                    className="size-3 text-muted-foreground"
+                    data-icon="inline-end"
+                  />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-auto p-0">
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  disabled={{ after: new Date() }}
+                  onSelect={(range) => {
+                    setLocalDateRange(range);
+                    if (!range?.from) {
+                      void setDateRange(null, null);
+                      return;
+                    }
+                    const fromRange = startOfDay(range.from);
+                    const toRange = endOfDay(range.to ?? range.from);
+                    void setDateRange(fromRange.getTime(), toRange.getTime());
+                  }}
+                  initialFocus
+                  numberOfMonths={2}
                 />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-auto p-0">
-              <Calendar
-                mode="range"
-                selected={dateRange}
-                disabled={{ after: new Date() }}
-                onSelect={(range) => {
-                  setLocalDateRange(range);
-                  if (!range?.from) {
-                    void setDateRange(null, null);
-                    return;
-                  }
-                  const fromRange = startOfDay(range.from);
-                  const toRange = endOfDay(range.to ?? range.from);
-                  void setDateRange(fromRange.getTime(), toRange.getTime());
-                }}
-                initialFocus
-                numberOfMonths={2}
-              />
-            </PopoverContent>
-          </Popover>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
 
@@ -188,9 +285,11 @@ const AnalyticModule = () => {
         <Card>
           <CardHeader>
             <CardTitle>Total Income</CardTitle>
-            <CardDescription>{dateLabel}</CardDescription>
+            <CardDescription>
+              {dateLabel} • {statusLabel}
+            </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col gap-4">
             {isLoading && !data ? (
               <Skeleton className="h-8 w-40" />
             ) : (
@@ -199,125 +298,149 @@ const AnalyticModule = () => {
               </div>
             )}
             <p className="text-muted-foreground mt-2 text-xs">
-              Daily totals are based on closed bills only.
+              Daily totals are based on{' '}
+              {statusLabel === 'All statuses'
+                ? 'all bills'
+                : statusLabel.toLowerCase()}
+              .
             </p>
-          </CardContent>
-        </Card>
-
-        <Card className="min-h-70">
-          <CardHeader>
-            <CardTitle>Daily Income</CardTitle>
-            <CardDescription>Last {chartData.length} days</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading && !data ? (
-              <Skeleton className="h-56 w-full" />
-            ) : (
-              <ChartContainer config={chartConfig} className="h-56 w-full">
-                <AreaChart data={chartData} margin={{ left: 8, right: 8, top: 8 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="label"
-                    tickMargin={8}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tickFormatter={(value) =>
-                      new Intl.NumberFormat('id-ID', {
-                        notation: 'compact',
-                        maximumFractionDigits: 1,
-                      }).format(Number(value))
-                    }
-                    axisLine={false}
-                    tickLine={false}
-                    width={64}
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={
-                      <ChartTooltipContent
-                        indicator="dot"
-                        formatter={(value) => (
-                          <span className="text-foreground font-mono font-medium tabular-nums">
-                            {formatCurrency(Number(value))}
-                          </span>
-                        )}
-                      />
-                    }
-                  />
+            <div className="border-t pt-4">
+              <div className="text-sm font-semibold">Payment Method Share</div>
+              <p className="text-muted-foreground text-xs">
+                Percentage of total income • {statusLabel}
+              </p>
+              {isLoading && !data ? (
+                <div className="mt-3 grid gap-3">
                   {PAYMENT_METHOD_CONFIG.map((method) => (
-                    <Area
-                      key={method.value}
-                      dataKey={method.value}
-                      type="monotone"
-                      stackId="income"
-                      fill={`var(--color-${method.value})`}
-                      fillOpacity={0.2}
-                      stroke={`var(--color-${method.value})`}
-                      strokeWidth={2}
-                      dot={false}
-                    />
+                    <Skeleton key={method.value} className="h-16 w-full" />
                   ))}
-                </AreaChart>
-              </ChartContainer>
-            )}
-            {isFetching && !isLoading ? (
-              <div className="text-muted-foreground mt-2 text-xs">Updating…</div>
-            ) : null}
+                </div>
+              ) : (
+                <div className="mt-3">
+                  <ChartContainer
+                    config={chartConfig}
+                    className="h-56 w-full sm:h-64"
+                  >
+                    <BarChart
+                      accessibilityLayer
+                      data={paymentShareData}
+                      layout="vertical"
+                      margin={{ left: -12, right: 16, top: 8, bottom: 8 }}
+                    >
+                      <CartesianGrid horizontal={false} />
+                      <YAxis
+                        dataKey="label"
+                        type="category"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                        width={90}
+                      />
+                      <XAxis dataKey="percentage" type="number" hide />
+                      <ChartTooltip
+                        cursor={false}
+                        content={
+                          <ChartTooltipContent
+                            hideLabel
+                            indicator="line"
+                            formatter={(value, name, item) => (
+                              <div className="flex w-full items-center justify-between gap-3">
+                                <span className="text-muted-foreground">
+                                  {item?.payload?.label}
+                                </span>
+                                <span className="font-mono font-medium tabular-nums text-foreground">
+                                  {formatCurrency(Number(item?.payload?.value ?? 0))}
+                                </span>
+                              </div>
+                            )}
+                          />
+                        }
+                      />
+                      <Bar
+                        dataKey="percentage"
+                        layout="vertical"
+                        radius={5}
+                      >
+                        {paymentShareData.map((entry) => (
+                          <Cell key={entry.key} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ChartContainer>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
-      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Payment Method Share</CardTitle>
-          <CardDescription>Percentage of total income</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading && !data ? (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {PAYMENT_METHOD_CONFIG.map((method) => (
-                <Skeleton key={method.value} className="h-20 w-full" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid divide-y sm:grid-cols-1 sm:divide-x sm:divide-y-0 lg:grid-cols-3">
-              {PAYMENT_METHOD_CONFIG.map((method) => {
-                const total = data?.total ?? 0;
-                const value = data?.byMethod?.[method.value] ?? 0;
-                const percentage = total > 0 ? (value / total) * 100 : 0;
-
-                return (
-                  <div
-                    key={method.value}
-                    className={`flex flex-col gap-2 px-4 py-3`}
-                  >
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{method.label}</span>
-                      <span className="font-semibold text-foreground">
-                        {percentage.toFixed(1)}%
-                      </span>
-                    </div>
-                    <div className="text-lg font-semibold">
-                      {formatCurrency(value)}
-                    </div>
-                    <div className="h-1 w-full rounded-full bg-muted">
-                      <div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${Math.min(percentage, 100)}%`,
-                          backgroundColor: method.color,
-                        }}
+        {showDailyIncome ? (
+          <Card className="min-h-70">
+            <CardHeader>
+              <CardTitle>Daily Income</CardTitle>
+              <CardDescription>
+                Last {chartData.length} days • {statusLabel}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading && !data ? (
+                <Skeleton className="h-56 w-full" />
+              ) : (
+                <ChartContainer config={chartConfig} className="h-56 w-full">
+                  <AreaChart data={chartData} margin={{ left: 8, right: 8, top: 8 }}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="label"
+                      tickMargin={8}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tickFormatter={(value) =>
+                        new Intl.NumberFormat('id-ID', {
+                          notation: 'compact',
+                          maximumFractionDigits: 1,
+                        }).format(Number(value))
+                      }
+                      axisLine={false}
+                      tickLine={false}
+                      width={64}
+                    />
+                    <ChartTooltip
+                      cursor={false}
+                      content={
+                        <ChartTooltipContent
+                          indicator="dot"
+                          formatter={(value) => (
+                            <span className="text-foreground font-mono font-medium tabular-nums">
+                              {formatCurrency(Number(value))}
+                            </span>
+                          )}
+                        />
+                      }
+                    />
+                    {PAYMENT_METHOD_CONFIG.map((method) => (
+                      <Area
+                        key={method.value}
+                        dataKey={method.value}
+                        type="monotone"
+                        stackId="income"
+                        fill={`var(--color-${method.value})`}
+                        fillOpacity={0.2}
+                        stroke={`var(--color-${method.value})`}
+                        strokeWidth={2}
+                        dot={false}
                       />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                    ))}
+                  </AreaChart>
+                </ChartContainer>
+              )}
+              {isFetching && !isLoading ? (
+                <div className="text-muted-foreground mt-2 text-xs">Updating…</div>
+              ) : null}
+            </CardContent>
+          </Card>
+        ) : null}
+      </div>
     </div>
   );
 };

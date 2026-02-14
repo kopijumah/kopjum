@@ -2,12 +2,14 @@
 
 import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { parseAsInteger, useQueryStates } from 'nuqs';
+import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { getIncomeSummary } from '../action';
+import { TransactionStatus } from '~/module/transaction/enum';
 
 const rangeParsers = {
   from: parseAsInteger,
   to: parseAsInteger,
+  status: parseAsString,
 };
 
 const startOfDay = (value: Date) =>
@@ -33,10 +35,15 @@ export const useAnalyticSummary = () => {
 
   const from = typeof range.from === 'number' ? range.from : defaultFrom;
   const to = typeof range.to === 'number' ? range.to : defaultTo;
+  const status =
+    range.status === TransactionStatus.OpenBill ||
+    range.status === TransactionStatus.CloseBill
+      ? range.status
+      : null;
 
   const query = useQuery({
-    queryKey: ['analytics', from, to],
-    queryFn: async () => getIncomeSummary({ from, to }),
+    queryKey: ['analytics', from, to, status],
+    queryFn: async () => getIncomeSummary({ from, to, status }),
     placeholderData: (previous) => previous,
   });
 
@@ -49,11 +56,21 @@ export const useAnalyticSummary = () => {
     [setRange],
   );
 
+  const setStatus = React.useCallback(
+    (nextStatus: TransactionStatus | null) =>
+      setRange({
+        status: nextStatus ?? null,
+      }),
+    [setRange],
+  );
+
   return {
     data: query.data,
     from,
     to,
+    status,
     setDateRange,
+    setStatus,
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     isError: query.isError,

@@ -214,7 +214,7 @@ const TransactionUpdate = ({ transactionId, trigger }: TransactionUpdateProps) =
           </Button>
         )}
       </AlertDialogTrigger>
-      <AlertDialogContent className="min-w-3xl max-h-[70dvh] overflow-auto">
+      <AlertDialogContent className="md:min-w-3xl max-h-[70dvh] overflow-auto">
         <TransactionUpdateForm
           control={control}
           register={register}

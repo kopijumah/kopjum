@@ -26,6 +26,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarSeparator,
+  SidebarTrigger,
 } from "~/shared/ui/sidebar"
 import { useAuth } from "~/module/auth/hook/use-auth"
 import { Role } from "~/shared/enum"
@@ -76,15 +77,15 @@ function BaseSidebarLayout({ children }: BaseSidebarLayoutProps) {
 
   return (
     <SidebarProvider>
-      <Sidebar variant="sidebar">
-        <SidebarHeader>
+      <Sidebar variant="sidebar" collapsible="offcanvas">
+        <SidebarHeader className="h-16">
           <Link
             href="/transaction"
             className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-semibold text-sidebar-foreground"
           >
             <KopjumIcon className="size-8" />
             <div className="flex flex-col justify-start items-start">
-              <div className="tracking-tight">Kopjum</div>
+              <div className="tracking-tight text-sm">Kopjum</div>
               <div className="text-xs font-normal">
                 By <span className="font-bold">Teman Duta</span>
               </div>
@@ -156,7 +157,14 @@ function BaseSidebarLayout({ children }: BaseSidebarLayoutProps) {
           </div>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset>
+        <div className="bg-background/95 backdrop-blur supports-backdrop-blur:bg-background/60 sticky top-0 z-20 flex h-16 items-center gap-2 border-b px-3">
+          <SidebarTrigger className="shrink-0" />
+        </div>
+        <div className="w-full flex flex-col max-w-6xl mx-auto mt-8 mb-6 px-5 md:px-0">
+          {children}
+        </div>
+      </SidebarInset>
     </SidebarProvider>
   )
 }
